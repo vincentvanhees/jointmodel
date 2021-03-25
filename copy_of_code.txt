@@ -1,0 +1,182 @@
+unit Unit1;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Spin, ExtCtrls, Menus;
+
+type
+  TForm1 = class(TForm)
+    PaintBox1: TPaintBox;
+    SpinEdit1: TSpinEdit;
+    SpinEdit2: TSpinEdit;
+    SpinEdit3: TSpinEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    SpinEdit4: TSpinEdit;
+    Label4: TLabel;
+    Edit1: TEdit;
+    Label5: TLabel;
+    Edit2: TEdit;
+    Label6: TLabel;
+    MainMenu1: TMainMenu;
+    Bestand1: TMenuItem;
+    Afsluiten1: TMenuItem;
+    SpinEdit5: TSpinEdit;
+    Label7: TLabel;
+    procedure PaintBox1Paint(Sender: TObject);
+    procedure SpinEdit2Change(Sender: TObject);
+    procedure Afsluiten1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.DFM}
+
+procedure TForm1.PaintBox1Paint(Sender: TObject);
+var
+  RCC:Integer; //Straal van CC
+  ACC:Double;  //Grootste afwikkellengte CC
+  BCC:Double;  //Kleinste afwikkellengte CC
+  CCC:Double;  //Afwikkellengte CC
+  MiddenCC:TPoint; //Midden cirkel CC
+  SHoekCC:Integer;  //Starthoek van spiraal
+  AfwikkelhoekCC:Integer; //Hoek tov SHoekCC
+  CilinderpuntCC:TPoint; //Punt op cirkelCC
+  SpiraalPuntCC:TPoint; //Punt op spiraalCC
+  OmtrekCC:Integer; //Omtrek van de spiraalCC
+  OmtrekCC2:Integer; //Omtrek van de spiraalCC
+  StarthoekCC:Integer;
+  EindhoekCC:Integer;
+  StapgrootteCC:Integer; //OmtrekCC/10
+//coordinaten van grenspunten van gewrichtsvlakCC
+  SCilinderPuntCC:TPoint;
+  ECilinderPuntCC:TPoint;
+  SSpiraalPuntCC:TPoint;
+  ESpiraalPuntCC:TPoint;
+  LSCC:Integer;       //LengteSchacht CC
+begin
+  RCC:=SpinEdit1.value;
+  ACC:=SpinEdit2.value;
+  BCC:=SpinEdit3.value;
+  SHoekCC:=SpinEdit4.value;
+  MiddenCC.x:=round(0.5*Paintbox1.Width);
+  MiddenCC.y:=round(0.5*Paintbox1.Height);
+//Teken cirkel rond midden
+  Paintbox1.Canvas.Ellipse(MiddenCC.x-RCC,MiddenCC.y-RCC,
+  MiddenCC.x+RCC,MiddenCC.y+RCC);
+//Ga naar punt waar spiraal begint
+  Paintbox1.Canvas.MoveTo((MiddenCC.x+round(RCC*cos(pi*SHoekCC/180))),
+  (MiddenCC.y+round(RCC*sin(pi*SHoekCC/180))));
+  OmtrekCC:=0;
+  StarthoekCC:=round(BCC*180/(pi*RCC));
+  EindHoekCC:=round(ACC*180/round(pi*RCC));
+//Loop waarin de spiraal getekend wordt
+  AfwikkelhoekCC:=StarthoekCC;
+  while AfwikkelhoekCC<=EindhoekCC do
+  begin
+    AfwikkelhoekCC:=AfwikkelhoekCC+1;
+//Punt op cirkelCC berekenen
+    CilinderPuntCC.x:=round(MiddenCC.x+RCC*cos(pi*(AfwikkelhoekCC+SHoekCC)/180));
+    CilinderPuntCC.y:=round(MiddenCC.y+RCC*sin(pi*(AfwikkelhoekCC+SHoekCC)/180));
+//Afwikkellengte bij dat punt berekenen
+    CCC:=pi*RCC*AfwikkelhoekCC/180;
+//SpiraalCC tekenen
+    SpiraalPuntCC.x:=round(CilinderPuntCC.x+CCC*cos(pi*(AfwikkelhoekCC+SHoekCC)/180));
+    SpiraalPuntCC.y:=round(CilinderPuntCC.y+CCC*sin(pi*(AfwikkelhoekCC+SHoekCC)/180));
+    Paintbox1.Canvas.LineTo(SpiraalPuntCC.x,SpiraalPuntCC.y);
+//Omtrek uitrekenen van Concaaf
+    OmtrekCC:=OmtrekCC+round(CCC*(AfwikkelhoekCC+SHoekCC));
+    Edit1.text:=IntToStr(OmtrekCC);
+  end;
+//De stapgrootte uitrekenen
+  StapgrootteCC:=round(OmtrekCC/10);
+  Edit2.text:=IntToStr(StapgrootteCC);
+//Herhaling
+  RCC:=SpinEdit1.value;
+  ACC:=SpinEdit2.value;
+  BCC:=SpinEdit3.value;
+  SHoekCC:=SpinEdit4.value;
+  MiddenCC.x:=round(0.5*Paintbox1.Width);
+  MiddenCC.y:=round(0.5*Paintbox1.Height);
+//Teken cirkel rond midden
+  Paintbox1.Canvas.Ellipse(MiddenCC.x-RCC,MiddenCC.y-RCC,
+  MiddenCC.x+RCC,MiddenCC.y+RCC);
+//Ga naar punt waar spiraal begint
+  Paintbox1.Canvas.MoveTo((MiddenCC.x+round(RCC*cos(pi*SHoekCC/180))),
+  (MiddenCC.y+round(RCC*sin(pi*SHoekCC/180))));
+  OmtrekCC2:=0;
+  StarthoekCC:=round(BCC*180/(pi*RCC));
+  EindHoekCC:=round(ACC*180/round(pi*RCC));
+//Loop waarin de spiraal getekend wordt
+  AfwikkelhoekCC:=StarthoekCC;
+  while AfwikkelhoekCC<=EindhoekCC do
+  begin
+    AfwikkelhoekCC:=AfwikkelhoekCC+1;
+//Punt op cirkelCC berekenen
+    CilinderPuntCC.x:=round(MiddenCC.x+RCC*cos(pi*(AfwikkelhoekCC)/180));
+    CilinderPuntCC.y:=round(MiddenCC.y+RCC*sin(pi*(AfwikkelhoekCC)/180));
+//Afwikkellengte bij dat punt berekenen
+    CCC:=pi*RCC*AfwikkelhoekCC/180;
+//SpiraalCC tekenen
+    SpiraalPuntCC.x:=round(CilinderPuntCC.x+CCC*cos(pi*(AfwikkelhoekCC+SHoekCC)/180));
+    SpiraalPuntCC.y:=round(CilinderPuntCC.y+CCC*sin(pi*(AfwikkelhoekCC+SHoekCC)/180));
+    Paintbox1.Canvas.LineTo(SpiraalPuntCC.x,SpiraalPuntCC.y);
+//Omtrek uitrekenen van Concaaf
+    OmtrekCC2:=OmtrekCC2+round(CCC*(AfwikkelhoekCC+SHoekCC));
+    Edit1.text:=IntToStr(OmtrekCC);
+    if OmtrekCC2>= StapgrootteCC then
+      begin
+        Form1.Paintbox1.Canvas.Pen.Color:=clRed;
+        Paintbox1.Canvas.Ellipse(SpiraalPuntCC.x-3,SpiraalPuntCC.y-3,
+        SpiraalPuntCC.x+3,SpiraalPuntCC.y+3);
+        Form1.Paintbox1.Canvas.Pen.Color:=clGreen;
+        Paintbox1.Canvas.MoveTo(CilinderPuntCC.x,CilinderPuntCC.y);
+        Paintbox1.Canvas.LineTo(SpiraalPuntCC.x,SpiraalPuntCC.y);
+        OmtrekCC2:=OmtrekCC2-StapgrootteCC;
+        Form1.Paintbox1.Canvas.Pen.Color:=clBlack;
+      end
+    end;
+//Botstuk tekenen
+LSCC:=SpinEdit5.value;
+//Startpunt
+    SCilinderPuntCC.x:=round(MiddenCC.x+RCC*cos(pi*(StarthoekCC+SHoekCC)/180));
+    SCilinderPuntCC.y:=round(MiddenCC.y+RCC*sin(pi*(StarthoekCC+SHoekCC)/180));
+    CCC:=pi*RCC*StarthoekCC/180;
+    SSpiraalPuntCC.x:=round(SCilinderPuntCC.x+CCC*cos(pi*(StarthoekCC+SHoekCC)/180));
+    SSpiraalPuntCC.y:=round(SCilinderPuntCC.y+CCC*sin(pi*(StarthoekCC+SHoekCC)/180));
+//Eindpunt
+    ECilinderPuntCC.x:=round(MiddenCC.x+RCC*cos(pi*(EindhoekCC+SHoekCC)/180));
+    ECilinderPuntCC.y:=round(MiddenCC.y+RCC*sin(pi*(EindhoekCC+SHoekCC)/180));
+    CCC:=pi*RCC*EindhoekCC/180;
+    ESpiraalPuntCC.x:=round(ECilinderPuntCC.x+CCC*cos(pi*(EindhoekCC+SHoekCC)/180));
+    ESpiraalPuntCC.y:=round(ECilinderPuntCC.y+CCC*sin(pi*(EindhoekCC+SHoekCC)/180));
+//Tekenen
+    Paintbox1.Canvas.MoveTo(SSpiraalPuntCC.x,SSpiraalPuntCC.y);
+    Paintbox1.Canvas.LineTo(SSpiraalPuntCC.x,SSpiraalPuntCC.y+LSCC);
+    Paintbox1.Canvas.LineTo(ESpiraalPuntCC.x,ESpiraalPuntCC.y+LSCC);
+    Paintbox1.Canvas.LineTo(ESpiraalPuntCC.x,ESpiraalPuntCC.y);
+
+end;
+
+procedure TForm1.SpinEdit2Change(Sender: TObject);
+begin
+  Paintbox1.invalidate;
+end;
+
+procedure TForm1.Afsluiten1Click(Sender: TObject);
+begin
+  application.terminate;
+end;
+
+end.
+

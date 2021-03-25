@@ -1,0 +1,263 @@
+unit Unit1;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Spin, ExtCtrls;
+
+type
+  TPointR = record
+  x, y, h: double;
+  end;
+  CCarr = array[1..10]of TPointR;
+  CVarr = array[1..10]of TPointR;
+  TForm1 = class(TForm)
+    PaintBox1: TPaintBox;
+    SpinEdit1: TSpinEdit;
+    SpinEdit2: TSpinEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    SpinEdit3: TSpinEdit;
+    SpinEdit4: TSpinEdit;
+    SpinEdit5: TSpinEdit;
+    SpinEdit6: TSpinEdit;
+    SpinEdit7: TSpinEdit;
+    SpinEdit8: TSpinEdit;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    procedure PaintBox1Paint(Sender: TObject);
+    procedure SpinEdit1Change(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.DFM}
+
+procedure TForm1.PaintBox1Paint(Sender: TObject);
+var
+  r: integer;         {straal van de cirkel}
+  ah: double;        {afwikkelhoek}
+  al: double;        {afwikkellengte}
+  om1: double;        {omtrek: van begin spiraal tot korste al}
+  om2: double;        {omtrek: van begin spiraal tot langste al}
+  stap: double;      {de omtrek tussen twee maatstreepjes}
+  midden: TPoint;     {midden van de paintbox en cilinder}
+  cilinderp: TPoint;  {punt op cilinder met straal r}
+  spiraalp: TPoint;   {punt op de evolute}
+  ah1: double;        {kortste ah => berekent mbv al1}
+  ah2: double;       {grootste ah => berekent mbv al2}
+  al1: integer;       {korste al = invoer}
+  al2: integer;       {grootste al = invoer}
+  n: integer;         {het aantal stappen}
+  k: integer;         {het aantal streepjes}
+  L: double;         {omtrek van maatstreepje 0 tot maatsreepje k}
+  Omtrekgewrichtsvlak: double;
+  CC: CCarr;
+//  alpha:integer;
+  {MaatSTreepje, punt waar lijn naar toe gaat}
+//  Maatstreepje : TPoint;
+  vr: integer;       //straal van de cirkel
+  vah: double;        //afwikkelhoek
+  val: double;        //afwikkellengte
+  vom1: double;       //omtrek: van begin spiraal tot korste al
+  vom2: double;       //omtrek: van begin spiraal tot langste al
+  vstap: double;      //de omtrek tussen twee maatstreepjes
+  vmidden: TPoint;    //midden van de paintbox en cilinder
+  vcilinderp: TPoint; //punt op cilinder met straal r
+  vspiraalp: TPoint;  //punt op de evolute
+  vah1: double;       //kortste ah => berekent mbv al1
+  vah2: double;       //grootste ah => berekent mbv al2
+  val1: integer;      //korste al = invoer
+  val2: integer;      //grootste al = invoer
+  vn: integer;        //Het aantal stappen
+  vk: integer;        //het aantal streepjes
+  vL: double;         //omtrek van maatstreepje 0 tot maatsreepje k
+  vOmtrekgewrichtsvlak: double;
+  CV: CVarr;
+begin
+  r:=Spinedit1.value;
+  al1:=Spinedit2.value;
+  al2:=Spinedit3.value;
+  n:=Spinedit4.value;
+  ah1:=al1/r;
+  midden.x:=round(0.5*Paintbox1.width);
+  midden.y:=round(0.5*Paintbox1.height);
+//cirkel tekenen
+  Paintbox1.Canvas.ellipse(midden.x-r,midden.y-r,midden.x+r,midden.y+r);
+//omtrek uitreken
+  om1:=0.5*sqr(al1)/r;
+  om2:=0.5*sqr(al2)/r;
+  Omtrekgewrichtsvlak:=om2-om1;
+//stapgrootte = omtrek/aantalstappen-1
+  stap:=(om2-om1)/(n);
+//Het begin van het gewrichtsvlak opzoeken
+  cilinderp.x:=midden.x+round(r*cos(ah1));
+  cilinderp.y:=midden.y+round(r*sin(ah1));
+  spiraalp.x:=cilinderp.x+round(al1*sin(ah1));
+  spiraalp.y:=cilinderp.y-round(al1*cos(ah1));
+// Paintbox1.Canvas.MoveTo(Spiraalp.x,Spiraalp.y);
+//Groene cirkel als markering
+  Form1.Paintbox1.Canvas.Pen.Color:=clGreen;
+  Paintbox1.Canvas.ellipse(Spiraalp.x-3,Spiraalp.y-3,
+  Spiraalp.x+3,Spiraalp.y+3);
+  Form1.Paintbox1.Canvas.Pen.Color:=clblack;
+  k:=1;
+  while k<=10 do
+  begin
+    {De omtrek van beginpunt van gewrichtsvlak tot
+    het desbetreffende maatstreepje}
+    L:=(k-1)*stap;
+    {ah uitrekenen
+    sqr(ah)=((om1+L)/(0,5*r)}
+    ah:=sqrt((L+om1)/(0.5*r));
+    //al=r*ah dus in radialen:
+    al:=r*ah;
+    {Met ah en al kunnen nu de punten op de spiraal
+    worden berekent}
+    cilinderp.x:=midden.x+round(r*cos(ah));
+    cilinderp.y:=midden.y+round(r*sin(ah));
+    spiraalp.x:=cilinderp.x+round(al*sin(ah));
+    spiraalp.y:=cilinderp.y-round(al*cos(ah));
+    //Paintbox1.Canvas.LineTo(spiraalp.x,spiraalp.y);
+    //Maatstreepjes tekenen
+    Form1.Paintbox1.Canvas.Pen.Color:=clred;
+    Paintbox1.Canvas.MoveTo(Spiraalp.x,Spiraalp.y);
+    Paintbox1.Canvas.LineTo(Spiraalp.x+round(10*sin(ah)),
+                            Spiraalp.y+round(10*cos(ah)));
+    Form1.Paintbox1.Canvas.Pen.Color:=clyellow;
+    Paintbox1.Canvas.ellipse(Spiraalp.x-2,Spiraalp.y-2,
+                             Spiraalp.x+2,Spiraalp.y+2);
+    Form1.Paintbox1.Canvas.Pen.Color:=clBlack;
+    CC[k].x:=Spiraalp.x ;
+    CC[k].y:=Spiraalp.y;
+    CC[k].h:=cos(ah);
+    k:=k+1;
+  end;
+  Form1.Paintbox1.Canvas.Pen.Color:=clRed;
+  Paintbox1.Canvas.ellipse(Spiraalp.x-3,Spiraalp.y-3,
+                           Spiraalp.x+3,Spiraalp.y+3);
+  Form1.Paintbox1.Canvas.Pen.Color:=clBlack;
+//Het begin van het gewrichtsvlak opzoeken
+  cilinderp.x:=midden.x+round(r*cos(ah1));
+  cilinderp.y:=midden.y+round(r*sin(ah1));
+  spiraalp.x:=cilinderp.x+round(al1*sin(ah1));
+  spiraalp.y:=cilinderp.y-round(al1*cos(ah1));
+  Paintbox1.Canvas.MoveTo(Spiraalp.x,Spiraalp.y);
+  //Een loop om spiraal te tekenen.
+  al2:=Spinedit3.value;
+  ah2:=al2/r;
+  ah:=ah1;
+  while ah<=ah2 do
+  begin
+    ah:=ah+0.01;
+    al:=r*ah;
+    cilinderp.x:=midden.x+round(r*cos(ah));
+    cilinderp.y:=midden.y+round(r*sin(ah));
+    spiraalp.x:=cilinderp.x+round(al*sin(ah));
+    spiraalp.y:=cilinderp.y-round(al*cos(ah));
+    Paintbox1.Canvas.LineTo(spiraalp.x,spiraalp.y);
+  end;
+  //BOTSTUK CONVEX
+  vr:=Spinedit5.value;
+  val1:=Spinedit6.value;
+  val2:=Spinedit7.value;
+  vn:=Spinedit8.value;
+  vah1:=val1/vr;
+  vmidden.x:=round(0.5*Paintbox1.width);
+  vmidden.y:=round(0.5*Paintbox1.height);
+//cirkel tekenen
+  Paintbox1.Canvas.ellipse(vmidden.x-vr,vmidden.y-vr,
+                           vmidden.x+vr,vmidden.y+vr);
+//omtrek uitreken
+  vom1:=0.5*sqr(val1)/vr;
+  vom2:=0.5*sqr(val2)/vr;
+  vOmtrekgewrichtsvlak:=vom2-vom1;
+  //stapgrootte = omtrek/aantalstappen-1
+  vstap:=(vom2-vom1)/(vn);
+  //Het begin van het gewrichtsvlak opzoeken
+  vcilinderp.x:=vmidden.x+round(vr*cos(vah1));
+  vcilinderp.y:=vmidden.y+round(vr*sin(vah1));
+  vspiraalp.x:=vcilinderp.x+round(val1*sin(vah1));
+  vspiraalp.y:=vcilinderp.y-round(val1*cos(vah1));
+// Paintbox1.Canvas.MoveTo(Spiraalp.x,Spiraalp.y);
+//Groene cirkel als markering
+  Form1.Paintbox1.Canvas.Pen.Color:=clGreen;
+  Paintbox1.Canvas.ellipse(vSpiraalp.x-3,vSpiraalp.y-3,
+  vSpiraalp.x+3,vSpiraalp.y+3);
+  Form1.Paintbox1.Canvas.Pen.Color:=clblack;
+  vk:=1;
+  while vk<=10 do
+  begin
+    //De omtrek van beginpunt van gewrichtsvlak tot
+    //het desbetreffende maatstreepje
+    vL:=(vk-1)*vstap;
+    //ah uitrekenen sqr(ah)=((om1+L)/(0,5*r)
+    vah:=sqrt((vL+vom1)/(0.5*vr));
+    //al=r*ah dus in radialen:
+    val:=vr*vah;
+    //Met ah en al kunnen nu de punten op de spiraal
+    //    worden berekent
+    vcilinderp.x:=vmidden.x+round(vr*cos(vah));
+    vcilinderp.y:=vmidden.y+round(vr*sin(vah));
+    vspiraalp.x:=vcilinderp.x+round(val*sin(vah));
+    vspiraalp.y:=vcilinderp.y-round(val*cos(vah));
+    //Paintbox1.Canvas.LineTo(spiraalp.x,spiraalp.y);
+    //Maatstreepjes tekenen
+    Form1.Paintbox1.Canvas.Pen.Color:=clred;
+    Paintbox1.Canvas.MoveTo(vSpiraalp.x,vSpiraalp.y);
+    Paintbox1.Canvas.LineTo(vSpiraalp.x+round(10*sin(vah)),
+                            vSpiraalp.y+round(10*cos(vah)));
+    Form1.Paintbox1.Canvas.Pen.Color:=clyellow;
+    Paintbox1.Canvas.ellipse(vSpiraalp.x-2,vSpiraalp.y-2,
+                             vSpiraalp.x+2,vSpiraalp.y+2);
+    Form1.Paintbox1.Canvas.Pen.Color:=clBlack;
+    CV[k].x:=vSpiraalp.x ;
+    CV[k].y:=vSpiraalp.y;
+    CV[k].h:=cos(vah);
+    vk:=vk+1;
+  end;
+  Form1.Paintbox1.Canvas.Pen.Color:=clRed;
+  Paintbox1.Canvas.ellipse(vSpiraalp.x-3,vSpiraalp.y-3,
+                           vSpiraalp.x+3,vSpiraalp.y+3);
+  Form1.Paintbox1.Canvas.Pen.Color:=clBlack;
+{//Het begin van het gewrichtsvlak opzoeken
+  vcilinderp.x:=vmidden.x+round(vr*cos(vah1));
+  vcilinderp.y:=vmidden.y+round(vr*sin(vah1));
+  vspiraalp.x:=vcilinderp.x+round(val1*sin(vah1));
+  vspiraalp.y:=vcilinderp.y-round(val1*cos(vah1));
+  Paintbox1.Canvas.MoveTo(vSpiraalp.x,vSpiraalp.y);
+  //Een loop om spiraal te tekenen.
+  val2:=Spinedit7.value;
+  vah2:=val2/vr;
+  vah:=vah1;
+  while vah<=vah2 do
+  begin
+    vah:=vah+0.01;
+    val:=vr*vah;
+    vcilinderp.x:=vmidden.x+round(vr*cos(vah));
+    vcilinderp.y:=vmidden.y+round(vr*sin(vah));
+    vspiraalp.x:=vcilinderp.x+round(val*sin(vah));
+    vspiraalp.y:=vcilinderp.y-round(val*cos(vah));
+    Paintbox1.Canvas.LineTo(vspiraalp.x,vspiraalp.y);
+  end; }
+end;
+
+
+procedure TForm1.SpinEdit1Change(Sender: TObject);
+begin
+  Paintbox1.invalidate;
+end;
+
+end.
